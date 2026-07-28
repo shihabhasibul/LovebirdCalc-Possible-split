@@ -1,0 +1,1164 @@
+/* ============================================================================
+   Agapornis Genetic Calculator — LAB (Lovebird Association of Bangladesh) theme
+   ---------------------------------------------------------------------------
+   STYLING ONLY. No text, wording, ordering, casing, italics, calculation, or
+   data is changed by this file. Every selector below targets a class/id that
+   script.js already creates or reads; none are renamed. Palette taken from
+   lovebirdassociation.com (forest green + grass green) plus the peach-faced
+   lovebird's own coral/orange plumage as the natural accent.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
+:root{
+  /* --- LAB brand --- */
+  --forest:#173A28;        /* deep hero green (nav/footer/headers)   */
+  --forest-2:#1F4A33;
+  --grass:#58AA3A;         /* LAB primary button green               */
+  --grass-2:#4B9531;       /* darker grass for hover                 */
+  --grass-soft:#EAF4E3;    /* pale green wash                        */
+  --grass-border:#CFE3C2;
+  /* --- lovebird plumage accent --- */
+  --coral:#C24B3A;         /* peach-faced red/coral                  */
+  --coral-2:#D96A4A;
+  --coral-soft:#FBE9E2;
+  --gold:#E6A62B;          /* warm highlight (used sparingly)        */
+  --gold-2:#CF9420;
+  --gold-soft:#FBF1DA;
+  --gold-border:#ECD9A8;
+  --gold-ink:#7A5A12;      /* readable warm text on gold-soft surfaces */
+  /* --- neutrals --- */
+  --paper:#F6F7F3;         /* warm off-white body                    */
+  --card:#FFFFFF;
+  --ink:#20261F;
+  --ink-soft:#5C6357;
+  --line:#E2E6DC;
+  --line-strong:#CBD2C2;
+  /* legacy var names kept so any stray reference still resolves */
+  --primary:var(--forest); --secondary:var(--grass); --accent:var(--grass);
+  --reset-color:var(--coral); --bg:var(--paper); --card-bg:var(--card); --border:var(--line);
+  /* --- sex accents --- */
+  --sire:#2F6DA4; --sire-soft:#E6EEF6;
+  --dam:#B0466B; --dam-soft:#F7E7ED;
+  /* --- system --- */
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:"Mulish",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --display:"Fraunces",Georgia,serif;
+  --display-header:"Playfair Display",Georgia,serif;
+  --r:12px; --r-sm:8px;
+  --sh-sm:0 1px 2px rgba(23,58,40,.06),0 1px 3px rgba(23,58,40,.10);
+  --sh-md:0 6px 20px rgba(23,58,40,.08),0 2px 6px rgba(23,58,40,.06);
+  --sh-lg:0 16px 40px rgba(23,58,40,.14),0 4px 12px rgba(23,58,40,.08);
+}
+
+/* ---------- dark theme ---------- */
+:root[data-theme="dark"]{
+  --forest:#3FA06E; --forest-2:#2E7A54;
+  --grass:#7BC95A; --grass-2:#66B048; --grass-soft:#182619; --grass-border:#2E4A2A;
+  --coral:#E08267; --coral-2:#C96A4E; --coral-soft:#33221B;
+  --gold:#E6B84F; --gold-2:#C99A3A; --gold-soft:#302912; --gold-border:#4A3D22; --gold-ink:#E6C97A;
+  --paper:#12140F; --card:#1B1F18;
+  --ink:#EDEFE8; --ink-soft:#A9AF9E;
+  --line:#2B3126; --line-strong:#3C4434;
+  --sire:#7FB4E6; --sire-soft:#1C2732;
+  --dam:#E091AE; --dam-soft:#301B24;
+  --sh-sm:0 1px 2px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.45);
+  --sh-md:0 6px 20px rgba(0,0,0,.4),0 2px 6px rgba(0,0,0,.3);
+  --sh-lg:0 16px 40px rgba(0,0,0,.55),0 4px 12px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:
+    radial-gradient(1100px 460px at 12% -8%, rgba(88,170,58,.10), transparent 60%),
+    radial-gradient(820px 380px at 108% 4%, rgba(194,75,58,.07), transparent 55%),
+    radial-gradient(900px 480px at 46% 115%, rgba(88,170,58,.07), transparent 60%),
+    var(--paper);
+  color:var(--ink); max-width:1240px; margin:0 auto; padding:0 18px 90px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; transition:background-color .2s, color .2s;
+}
+:root[data-theme="dark"] body{
+  background:
+    radial-gradient(1100px 460px at 12% -8%, rgba(123,201,90,.14), transparent 60%),
+    radial-gradient(820px 380px at 108% 4%, rgba(224,130,103,.10), transparent 55%),
+    radial-gradient(900px 480px at 46% 115%, rgba(123,201,90,.09), transparent 60%),
+    var(--paper);
+}
+
+/* ---------- page title / masthead ---------- */
+.masthead{
+  position:relative; overflow:hidden; border-radius:20px; margin:26px 0 30px;
+  padding:38px 34px 42px; box-shadow:var(--sh-lg);
+  background:linear-gradient(135deg,var(--forest) 0%,var(--forest-2) 55%,#276241 100%);
+}
+.masthead::before{ /* subtle leaf-light sheen */
+  content:""; position:absolute; inset:0;
+  background:radial-gradient(460px 200px at 88% -30%, rgba(255,255,255,.14), transparent 60%);
+  pointer-events:none;
+}
+.masthead::after{ /* grass underline stripe */
+  content:""; position:absolute; left:0; right:0; bottom:0; height:5px;
+  background:linear-gradient(90deg,var(--grass),var(--gold),var(--coral));
+}
+.masthead-brand{position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:24px; width:100%}
+.masthead-text{flex:1; min-width:0}
+.masthead-logo{flex:none; width:84px; height:84px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.25)); transform:scaleX(-1)}
+.masthead-logo-tail, .masthead-logo-wing{fill:rgba(255,255,255,.55)}
+.masthead-logo-body, .masthead-logo-head, .masthead-logo-beak{fill:#fff}
+.masthead-logo-eye{fill:var(--forest)}
+h1{
+  text-align:left; color:#fff; font-family:var(--display-header); font-weight:800;
+  font-size:clamp(26px,4vw,40px); letter-spacing:-.01em; margin:0;
+}
+.sub{
+  text-align:left; font-size:15px; color:rgba(255,255,255,.85); margin-top:10px; max-width:480px;
+}
+.theme-toggle{
+  position:absolute; top:16px; right:16px; z-index:2;
+  width:42px; height:42px; border-radius:50%; border:1.5px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.12); color:#fff; cursor:pointer; font-size:19px;
+  display:flex; align-items:center; justify-content:center; transition:background .15s, transform .15s;
+}
+.theme-toggle:hover{background:rgba(255,255,255,.24); transform:translateY(-1px)}
+
+/* ---------- header controls / species dropdown ---------- */
+.header-controls{
+  text-align:center; margin:0 0 28px; padding:26px 24px;
+  background:var(--card);
+  border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--sh-md);
+}
+.header-controls label{font-family:var(--display)}
+.header-controls strong{color:var(--forest); font-size:1.05em}
+
+select#species{
+  font-size:1.05em; padding:12px 14px; width:100%; max-width:600px;
+  border:1.5px solid var(--line-strong); border-radius:var(--r-sm); outline:none; cursor:pointer;
+}
+
+.custom-select{position:relative; width:100%; max-width:600px; margin:0 auto; text-align:left}
+.custom-select-trigger{
+  font-size:1.05em; padding:13px 16px; width:100%;
+  border:1.5px solid var(--line-strong); border-radius:var(--r-sm); outline:none; cursor:pointer;
+  background:var(--card); color:var(--ink); display:flex; justify-content:space-between; align-items:center;
+  font-family:inherit; transition:border-color .15s, box-shadow .15s;
+}
+.custom-select-trigger:hover,.custom-select-trigger:focus{border-color:var(--grass); box-shadow:0 0 0 4px var(--grass-soft)}
+.custom-select-arrow{color:var(--grass); margin-left:10px}
+.custom-select-options{
+  list-style:none; margin:6px 0 0; padding:6px; position:absolute; left:0; right:0; z-index:30;
+  background:var(--card); border:1.5px solid var(--grass); border-radius:var(--r-sm); box-shadow:var(--sh-lg);
+  max-height:280px; overflow-y:auto;
+}
+.custom-select-options li{padding:10px 14px; cursor:pointer; font-size:1.02em; color:var(--ink); border-radius:6px}
+.custom-select-options li:hover,.custom-select-options li:focus{background:var(--grass-soft); color:var(--forest)}
+
+/* ---------- symbol toggle wrap ---------- */
+#symbol-toggle-wrap{text-align:left; margin:0 0 16px}
+
+/* ---------- two-column parents ---------- */
+.container{display:flex; gap:20px; flex-wrap:wrap}
+.bird-column{
+  flex:1; min-width:0; background:var(--card); padding:22px 22px 26px;
+  border:1px solid var(--line); border-top:4px solid var(--line-strong);
+  border-radius:var(--r); box-shadow:var(--sh-md);
+}
+#sire-column{border-top-color:var(--sire)}
+#dam-column{border-top-color:var(--dam)}
+.bird-column h2{
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  text-align:center; font-family:var(--display); font-weight:700; color:var(--forest);
+  margin:0 0 18px; padding-bottom:14px; border-bottom:2px solid var(--line);
+  font-size:1.25em;
+}
+#sire-column h2{border-bottom-color:var(--sire)}
+#dam-column h2{border-bottom-color:var(--dam)}
+
+/* ---------- sex-chromosome badges (birds are ZW: males ZZ, females ZW) ---------- */
+.sex-badge{
+  display:inline-flex; align-items:center; gap:5px; font-family:var(--mono);
+  font-size:.62em; font-weight:800; letter-spacing:.03em; padding:4px 10px 4px 8px;
+  border-radius:999px; vertical-align:middle; white-space:nowrap; cursor:default;
+}
+.sex-badge-sire{background:var(--sire-soft); color:var(--sire); border:1.5px solid var(--sire)}
+.sex-badge-dam{background:var(--dam-soft); color:var(--dam); border:1.5px solid var(--dam)}
+
+/* ---------- category / MOI / locus headers ---------- */
+.category{margin-bottom:22px}
+/* script.js wraps each mutation group in a bare <ul> for structure only
+   (no bullets are intended) -- without this reset, the browser's default
+   ~40px list padding silently eats width at every breakpoint, which only
+   becomes catastrophic (name-col collapsing to a sliver) at phone widths. */
+.category ul{list-style:none; margin:0; padding:0}
+.category-title{
+  font-family:var(--display); font-weight:600; font-size:1em; color:#fff; letter-spacing:.01em;
+  background:linear-gradient(135deg,var(--forest),var(--forest-2)); padding:10px 14px;
+  border-radius:var(--r-sm); margin-bottom:8px; box-shadow:var(--sh-sm);
+  display:flex; align-items:flex-start; gap:9px;
+  cursor:pointer; list-style:none; -webkit-user-select:none; user-select:none;
+}
+.category-title::-webkit-details-marker{display:none}
+/* Chevron flows as a normal (non-absolute) flex item pushed to the row's
+   end via margin-left:auto, instead of being positioned against the box's
+   total height -- that broke on long titles that wrap to several lines,
+   where a height-relative center landed mid-paragraph instead of by the
+   first line. This way it always sits level with the first line, no
+   matter how many lines the title wraps to. */
+.category-title::after{ /* expand/collapse chevron */
+  content:""; width:8px; height:8px; margin:4px 2px 0 auto; flex:none;
+  border-right:2px solid rgba(255,255,255,.85); border-bottom:2px solid rgba(255,255,255,.85);
+  transform:rotate(45deg); transition:transform .2s;
+}
+details[open] > .category-title::after{ transform:rotate(-135deg) }
+details.category:not([open]){ margin-bottom:14px }
+.category-title::before{ /* small feather tick */
+  content:""; width:8px; height:8px; margin-top:4px; border-radius:2px 6px 2px 6px;
+  background:var(--grass); flex:none;
+}
+.moi-subtitle{
+  font-weight:700; font-size:.82em; color:var(--grass-2); margin:16px 0 6px 4px; padding-bottom:5px;
+  border-bottom:1px dashed var(--line-strong); text-transform:uppercase; letter-spacing:.06em;
+}
+.locus-group{margin:0}
+.locus-subtitle{
+  font-weight:700; font-size:.85em; color:var(--ink-soft); margin:12px 0 8px 14px;
+  display:flex; align-items:center; cursor:pointer; user-select:none; list-style:none;
+}
+.locus-subtitle::-webkit-details-marker{display:none}
+.locus-subtitle::before{content:"o"; margin-right:8px; font-family:var(--mono); font-size:1.1em; color:var(--grass)}
+.locus-subtitle::after{ /* expand/collapse chevron, own state per locus-group */
+  content:""; width:6px; height:6px; margin-left:auto; flex:none;
+  border-right:2px solid var(--ink-soft); border-bottom:2px solid var(--ink-soft);
+  transform:rotate(45deg); transition:transform .2s;
+}
+details.locus-group[open] > .locus-subtitle::after{ transform:rotate(-135deg) }
+
+/* ---------- mutation item ---------- */
+.mutation-item{
+  margin:0 0 10px 14px; padding:12px 14px; background:var(--card);
+  border:1px solid var(--line); border-radius:var(--r-sm); transition:border-color .15s, box-shadow .15s, background .15s;
+}
+.mutation-item:hover{border-color:var(--line-strong)}
+.mutation-item.active{border-color:var(--grass); box-shadow:0 0 0 3px var(--grass-soft)}
+.mutation-item.locus-nested{margin-left:34px}
+.mutation-label{display:flex; align-items:center; gap:14px; font-weight:600; cursor:pointer; user-select:none; width:100%}
+.mutation-label input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none; width:20px; height:20px; flex:none; margin:0; cursor:pointer;
+  border:2px solid var(--line-strong); border-radius:6px; background:var(--card); position:relative; transition:.15s;
+}
+.mutation-label input[type="checkbox"]:hover{border-color:var(--grass)}
+.mutation-label input[type="checkbox"]:checked{background:var(--grass); border-color:var(--grass)}
+.mutation-label input[type="checkbox"]:checked::after{
+  content:""; position:absolute; left:6px; top:2px; width:5px; height:10px;
+  border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg);
+}
+.mutation-label input[type="checkbox"]:focus-visible{outline:2px solid var(--forest); outline-offset:2px}
+
+.mutation-columns{display:grid; grid-template-columns:150px minmax(0,1fr); gap:15px; width:100%; align-items:center}
+.symbol-col{
+  font-family:var(--mono); font-weight:700; font-style:italic; color:var(--forest);
+  font-size:1.02em; background:var(--grass-soft); padding:5px 9px; border-radius:6px;
+  text-align:center; border:1px solid var(--grass-border);
+  /* The Sapphire-group symbols (e.g. bl^1_bl^2/bl^1_bl^2) are wider than any
+     other mutation's symbol and have no natural break point (no spaces) --
+     without this they overflow past the pill's border at the 600-820px
+     tier instead of wrapping, same fix name-col already has for long names. */
+  overflow-wrap:break-word; min-width:0;
+}
+.name-col{font-size:1.04em; font-weight:800; color:var(--ink); overflow-wrap:break-word; word-break:break-word; min-width:0}
+
+/* ---------- gene options (pills) ---------- */
+.gene-options{display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--line-strong); gap:10px; flex-wrap:wrap}
+.mutation-item.active .gene-options{display:flex}
+.gene-btn-group{display:flex; width:100%; gap:6px; flex-wrap:wrap}
+.gene-btn-group label{
+  flex:1; min-width:56px; text-align:center; background:var(--card); border:1.5px solid var(--line-strong);
+  padding:9px 6px; border-radius:20px; cursor:pointer; font-size:.85em; font-weight:700; color:var(--ink-soft); transition:.15s;
+}
+.gene-btn-group label:hover{border-color:var(--grass); color:var(--forest)}
+.gene-btn-group input[type="radio"]{display:none}
+.gene-btn-group input[type="radio"]:checked + span{color:#fff}
+.gene-btn-group label:has(input[type="radio"]:checked){
+  background:linear-gradient(135deg,var(--grass),var(--grass-2)); border-color:var(--grass-2); color:#fff;
+  box-shadow:var(--sh-sm);
+}
+/* Z1/Z2 + T1/T2 assignment groups tinted differently so they read as "linkage" controls */
+.z-assign, .t-assign{
+  display:none; flex-direction:column; background:var(--gold-soft); border:1px solid var(--gold-border);
+  border-radius:var(--r-sm); padding:8px 10px; margin-top:8px; width:100%;
+}
+.z-assign label, .t-assign label{flex:unset; padding:6px 12px; min-width:44px; margin:0 4px; border-radius:16px}
+.z-assign label:has(input:checked), .t-assign label:has(input:checked){
+  background:linear-gradient(135deg,var(--gold),var(--gold-2)); border-color:var(--gold-2);
+}
+.linkage-row{width:100%; display:flex; justify-content:center; align-items:center; flex-wrap:wrap}
+.linkage-label{font-size:.85em; font-weight:800; color:var(--forest); margin-right:10px}
+.linkage-hint{
+  font-size:12px; color:var(--ink-soft); line-height:1.4; text-align:left;
+  margin-top:6px; padding:0 4px; width:100%; max-height:104px; overflow-y:auto; scrollbar-width:thin;
+}
+.linkage-hint::-webkit-scrollbar{width:4px}
+.linkage-hint::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:2px}
+
+/* ---------- action buttons ---------- */
+.action-buttons{display:flex; justify-content:center; align-items:center; gap:14px; flex-wrap:wrap}
+
+button#calc-btn, button#reset-btn, button#toggle-symbols-btn, button#toggle-symbols-btn-2,
+button#live-preview-calc-btn, button#live-preview-reset-btn, button#live-preview-toggle-symbols-btn,
+button#mobile-preview-toggle-symbols-btn, button#mobile-preview-reset-btn, button#mobile-preview-generate-btn{
+  font-family:var(--sans); font-weight:800; cursor:pointer; border-radius:999px;
+  display:inline-block; padding:13px 24px; font-size:1em; letter-spacing:.01em;
+  transition:transform .15s, box-shadow .15s, background .15s, color .15s, border-color .15s;
+}
+button#calc-btn:hover, button#reset-btn:hover,
+button#toggle-symbols-btn:hover, button#toggle-symbols-btn-2:hover,
+button#live-preview-calc-btn:hover, button#live-preview-reset-btn:hover, button#live-preview-toggle-symbols-btn:hover,
+button#mobile-preview-toggle-symbols-btn:hover, button#mobile-preview-reset-btn:hover, button#mobile-preview-generate-btn:hover{transform:translateY(-2px)}
+button#calc-btn:active, button#reset-btn:active,
+button#toggle-symbols-btn:active, button#toggle-symbols-btn-2:active,
+button#live-preview-calc-btn:active, button#live-preview-reset-btn:active, button#live-preview-toggle-symbols-btn:active,
+button#mobile-preview-toggle-symbols-btn:active, button#mobile-preview-reset-btn:active, button#mobile-preview-generate-btn:active{transform:translateY(0)}
+
+button#calc-btn, button#live-preview-calc-btn, button#mobile-preview-generate-btn{
+  color:#fff; border:none; background:linear-gradient(135deg,var(--grass),var(--grass-2));
+  padding:16px 34px; font-size:1.15em; box-shadow:var(--sh-md);
+}
+button#calc-btn::before, button#live-preview-calc-btn::before, button#mobile-preview-generate-btn::before{content:"\2713"; margin-right:9px; font-weight:900}
+button#calc-btn:hover, button#live-preview-calc-btn:hover, button#mobile-preview-generate-btn:hover{background:linear-gradient(135deg,#61b840,var(--grass-2)); box-shadow:var(--sh-lg)}
+
+button#reset-btn, button#live-preview-reset-btn, button#mobile-preview-reset-btn{
+  color:var(--coral); background:var(--card); border:2px solid var(--coral-soft); box-shadow:var(--sh-sm);
+}
+button#reset-btn::before, button#live-preview-reset-btn::before, button#mobile-preview-reset-btn::before{content:"\21BA"; margin-right:7px; font-weight:900}
+button#reset-btn:hover, button#live-preview-reset-btn:hover, button#mobile-preview-reset-btn:hover{background:var(--coral-soft); border-color:var(--coral); box-shadow:var(--sh-md)}
+
+button#toggle-symbols-btn, button#toggle-symbols-btn-2, button#live-preview-toggle-symbols-btn, button#mobile-preview-toggle-symbols-btn{
+  color:var(--forest); background:var(--card); border:2px solid var(--line-strong); box-shadow:var(--sh-sm);
+}
+button#toggle-symbols-btn:hover, button#toggle-symbols-btn-2:hover,
+button#live-preview-toggle-symbols-btn:hover, button#mobile-preview-toggle-symbols-btn:hover{
+  border-color:var(--grass); background:var(--grass-soft); box-shadow:var(--sh-md);
+}
+
+/* ---------- required-field reminder (shown when Generate is clicked incomplete) ---------- */
+.validation-reminder{
+  display:flex; align-items:flex-start; gap:10px; text-align:left;
+  background:var(--gold-soft); color:var(--gold-ink); border:1.5px solid var(--gold);
+  border-radius:var(--r-sm); padding:14px 16px; margin:0 0 16px; font-size:.92em; line-height:1.5;
+}
+.validation-reminder::before{content:"\26A0"; font-size:1.2em; line-height:1.3; color:var(--gold); flex:none}
+
+#controls-container{margin-top:28px; padding:4px 0}
+
+/* ---------- genetic-symbols visibility toggle ---------- */
+body.hide-genetic-symbols .symbol-col{display:none}
+body.hide-genetic-symbols .mutation-columns{grid-template-columns:1fr}
+/* !important because the mobile "stacked card" table layout targets
+   #results-content td with an ID selector, which otherwise always wins
+   over this class-based rule regardless of how many classes it chains --
+   that's why this correctly hid the Parents table (a plain class
+   selector, .parents-table td) but silently left the Offspring table's
+   formula column visible (an ID selector, #results-content td). This
+   toggle is meant to unconditionally win over any table layout. */
+body.hide-genetic-symbols .col-genetic-formula{display:none !important}
+
+/* ---------- results ---------- */
+#results-container{
+  display:none; margin-top:34px; background:var(--card); padding:26px; border-radius:var(--r); box-shadow:var(--sh-md);
+  border:1px solid var(--line);
+}
+#results-container > h2{
+  text-align:center; font-family:var(--display); font-weight:700; color:var(--forest); margin:0 0 20px;
+  padding-bottom:14px; border-bottom:2px solid var(--line); font-size:1.5em;
+}
+.parents-summary{
+  background:var(--grass-soft); border-left:5px solid var(--grass); padding:16px 18px;
+  margin-bottom:22px; border-radius:var(--r-sm); font-size:1.02em; color:var(--forest);
+}
+.parents-heading{
+  font-family:var(--sans); font-weight:800; font-size:.85em; color:var(--forest);
+  text-transform:uppercase; letter-spacing:.08em; margin:0 0 14px; text-align:left;
+  display:flex; align-items:center; gap:8px;
+}
+.parents-heading::before{
+  content:""; width:8px; height:8px; border-radius:50%; background:var(--grass);
+  box-shadow:0 0 0 3px rgba(88,170,58,.25); flex:none;
+}
+.parents-table{width:100%; border-collapse:collapse; font-size:1em; background:transparent}
+.parents-table th{
+  background:transparent; color:var(--forest); text-align:left; padding:7px 10px; border:none;
+  border-bottom:2px solid var(--grass); font-size:.82em; text-transform:uppercase; letter-spacing:.05em;
+}
+.parents-table td{padding:11px 10px; border:none; border-bottom:1px solid var(--line); vertical-align:middle; overflow-wrap:break-word}
+.parents-table tr:last-child td{border-bottom:none}
+
+.genetic-formula{font-family:var(--mono); font-style:italic; color:var(--forest); font-weight:600}
+
+#results-content h3{
+  font-family:var(--sans); font-weight:800; font-size:.85em; color:var(--forest);
+  text-transform:uppercase; letter-spacing:.08em; margin:26px 0 14px; text-align:left;
+  display:flex; align-items:center; gap:8px;
+}
+#results-content h3::before{
+  content:""; width:8px; height:8px; border-radius:50%; background:var(--grass);
+  box-shadow:0 0 0 3px rgba(88,170,58,.25); flex:none;
+}
+#results-content h3:first-child{margin-top:0}
+
+table{width:100%; border-collapse:collapse; font-size:1.02em; margin-bottom:22px}
+th{
+  background:linear-gradient(135deg,var(--forest),var(--forest-2)); color:#fff; padding:12px 13px; text-align:left;
+  border:none; font-size:.86em; text-transform:uppercase; letter-spacing:.04em;
+}
+th:first-child{border-radius:var(--r-sm) 0 0 0} th:last-child{border-radius:0 var(--r-sm) 0 0}
+td{padding:12px 13px; border:none; border-bottom:1px solid var(--line); overflow-wrap:break-word}
+tbody tr{transition:background .12s}
+tbody tr:hover{background:var(--grass-soft)}
+tbody tr:last-child td{border-bottom:none}
+
+/* warning + info notes */
+.mutation-warning-note{
+  background:var(--gold-soft); color:var(--gold-ink); border-left:5px solid var(--gold);
+  padding:12px 15px; margin:6px 0 0 34px; border-radius:var(--r-sm); font-size:.9em;
+  text-align:left;
+}
+.mutation-note{font-size:.8em; font-style:italic; color:var(--gold-ink) !important; margin:6px 0 0 34px; text-align:left}
+.mutation-info-note{
+  font-size:12.5px; color:var(--ink-soft); margin:6px 0 0 34px; line-height:1.4; word-wrap:break-word;
+  text-align:left;
+}
+
+sup{font-size:.72em; line-height:0; position:relative; vertical-align:baseline; top:-.5em}
+sub{font-size:.72em; line-height:0; position:relative; vertical-align:baseline; bottom:-.25em}
+
+/* ---------- share and print ---------- */
+.share-print-buttons {
+  display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+}
+button#share-btn, button#print-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family:var(--sans); font-weight:800; color:#fff; border:none; border-radius:999px; cursor:pointer;
+  padding:14px 30px; font-size:1.05em; letter-spacing:.01em;
+  background:linear-gradient(135deg,var(--grass),var(--grass-2)); box-shadow:var(--sh-sm);
+  transition:transform .15s, box-shadow .15s;
+}
+button#share-btn:hover, button#print-btn:hover {transform:translateY(-2px); box-shadow:var(--sh-md)}
+button#share-btn:active, button#print-btn:active {transform:translateY(0)}
+
+/* Differentiate the Print button slightly using the Forest green */
+button#print-btn {
+  background: var(--forest);
+}
+button#print-btn:hover {
+  background: var(--forest-2);
+}
+
+.button-icon {
+  width: 18px; height: 18px; flex: none;
+}
+
+/* ============================================================================
+   PRINT OPTIMIZATION
+   ========================================================================== */
+@media print {
+  body { background: none; color: #000; padding: 0; }
+  
+  /* Hide UI elements that shouldn't be printed (removed .masthead so the header prints) */
+  .header-controls, #symbol-toggle-wrap, .container, 
+  #controls-container, #shared-banner, #share-container, .mobile-preview-bar { 
+    display: none !important; 
+  }
+  
+  /* Force the branding colors and logo to print accurately */
+  .masthead {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide the dark/light mode button on paper */
+  .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Reset the results container to act like standard page text */
+  #results-container { 
+    display: block !important; border: none; box-shadow: none; margin: 0; padding: 0; 
+  }
+  
+  /* Ensure colored backgrounds print as simple borders for legibility */
+  .parents-summary { border: 1px solid #ccc; background: #fff !important; color: #000 !important; }
+  .mutation-warning-note { border: 1px solid #ccc; background: #fff !important; color: #000 !important; }
+  th { background: #eee !important; color: #000 !important; border: 1px solid #ccc; }
+  td { border: 1px solid #ccc; color: #000 !important; }
+}
+.share-link-box{margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; align-items:center}
+.share-link-box input{
+  flex:1; min-width:240px; max-width:500px; padding:11px 16px; border:1.5px solid var(--line-strong); border-radius:999px;
+  font-size:.9em; color:var(--ink); background:var(--card); font-family:var(--mono);
+}
+.share-link-box button{
+  font-family:var(--sans); padding:11px 22px; border:none; border-radius:999px; background:var(--forest); color:#fff;
+  font-weight:800; cursor:pointer; font-size:.95em; white-space:nowrap; letter-spacing:.01em;
+  transition:background .15s, transform .15s;
+}
+.share-link-box button:hover{background:var(--forest-2); transform:translateY(-2px)}
+.share-link-box button:active{transform:translateY(0)}
+
+/* ---------- shared-results banner ---------- */
+#shared-banner{
+  background:var(--grass-soft); border:1.5px solid var(--grass); border-radius:var(--r);
+  padding:15px 18px; margin-bottom:26px; text-align:center; color:var(--forest); font-size:1.02em;
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center;
+}
+#shared-banner button{padding:9px 16px; border:none; border-radius:var(--r-sm); background:var(--forest); color:#fff; font-weight:700; cursor:pointer; font-size:.9em}
+#shared-banner button:hover{background:var(--forest-2)}
+#shared-banner button.js-toggle-symbols-btn{background:var(--card); color:var(--forest); border:1.5px solid var(--forest)}
+#shared-banner button.js-toggle-symbols-btn:hover{background:var(--grass-soft)}
+
+/* ============================================================================
+   LIVE PARENTS PREVIEW
+   ---------------------------------------------------------------------------
+   Two forms of the same live-updating "Parents" summary (populated by
+   renderLivePreview() in script.js), shown before Generate is clicked:
+     - .live-preview-panel: a sticky box to the right of the Dam column,
+       desktop-only (>=1600px -- see the wide-tier media query below).
+     - .mobile-preview-bar: a fixed bottom bar, mobile-only (<=600px).
+   Both are hidden by default here; each is switched on only inside its own
+   breakpoint further down, so the 601-1599px middle tier sees neither and
+   keeps exactly the original bottom-controls-only behavior.
+   ========================================================================== */
+.live-preview-panel{
+  display:none; /* shown only at >=1600px, below */
+  flex-direction:column; align-self:flex-start; /* .container has no align-items, defaults to stretch */
+  position:sticky; top:20px; width:440px; flex:none;
+  background:var(--card); padding:22px 24px 24px;
+  border:1px solid var(--line); border-top:4px solid var(--grass);
+  border-radius:var(--r); box-shadow:var(--sh-md);
+  max-height:calc(100vh - 40px); overflow-y:auto;
+}
+.live-preview-heading{
+  font-family:var(--display); font-weight:700; color:var(--forest); text-align:center;
+  margin:0 0 14px; padding-bottom:12px; border-bottom:2px solid var(--line); font-size:1.05em;
+}
+.live-preview-body .live-preview-empty{
+  font-size:.95em; color:var(--ink-soft); text-align:center; margin:10px 0 16px; font-style:italic;
+}
+.live-preview-body .parents-heading{font-size:.76em; margin-bottom:10px}
+.live-preview-body .parents-table{font-size:.94em}
+.live-preview-body .parents-table td{padding:9px 8px}
+.live-preview-actions{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; padding-top:14px;
+  border-top:1px dashed var(--line-strong);
+}
+.live-preview-actions button{width:100%; padding:13px 14px; font-size:.95em}
+.live-preview-actions button#live-preview-calc-btn{grid-column:1 / -1}
+
+/* ---------- mobile fixed preview bar (<=600px only) ---------- */
+.mobile-preview-bar{
+  display:none; /* shown only at <=600px via .is-visible, below */
+  position:fixed; left:0; right:0; bottom:0; z-index:40;
+  background:var(--card); border-top:2px solid var(--grass); box-shadow:0 -6px 20px rgba(23,58,40,.14);
+  padding-bottom:env(safe-area-inset-bottom, 0);
+  /* JS (adjustMobileBarForKeyboard) sets a translateY transform equal to the
+     on-screen keyboard's height, so the bar rides up above it instead of
+     being covered -- this just makes that shift glide instead of jump. */
+  transition:transform .15s ease;
+}
+.mobile-preview-collapsed{display:flex; align-items:stretch; gap:8px; padding:8px 10px}
+.mobile-preview-expand-btn{
+  flex:1; min-width:0; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  background:transparent; border:none; cursor:pointer; padding:6px 8px; font-family:var(--sans);
+  color:var(--ink); text-align:left;
+}
+.mobile-preview-names{
+  font-size:.82em; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.mobile-preview-arrow{flex:none; color:var(--grass); font-size:.8em}
+button#mobile-preview-generate-btn{
+  flex:none; padding:10px 16px; font-size:.86em; white-space:nowrap;
+}
+.mobile-preview-expanded{
+  display:none; max-height:60vh; overflow-y:auto; padding:0 12px 12px; border-top:1px solid var(--line);
+}
+.mobile-preview-bar.expanded .mobile-preview-expanded{display:block; padding-top:10px}
+.mobile-preview-expanded .live-preview-empty{font-size:.86em; color:var(--ink-soft); font-style:italic; margin:6px 0 10px}
+.mobile-preview-expanded .parents-heading{font-size:.68em}
+.mobile-preview-expanded .live-preview-actions{margin-top:10px; padding-top:10px}
+.mobile-preview-expanded .live-preview-actions button{padding:10px 12px; font-size:.82em}
+
+/* ============================================================================
+   RESPONSIVE — Sire/Dam stay SIDE-BY-SIDE at every width instead of
+   stacking, via progressively shrinking padding/fonts/symbol width across
+   three stages (820px, 600px, 420px), with a horizontal-scroll fallback
+   only as a last resort for very small/old devices.
+   ========================================================================== */
+.bird-column{min-width:0}
+
+@media (max-width:820px){
+  .bird-column{padding:16px 14px 18px}
+  .bird-column h2{font-size:1.05em; margin-bottom:14px; padding-bottom:10px}
+  .category-title{font-size:.88em; padding:8px 10px}
+  .moi-subtitle{font-size:.74em; margin:12px 0 5px 2px}
+  .locus-subtitle{font-size:.78em; margin:10px 0 6px 8px}
+  .mutation-item{margin-left:8px; padding:9px 10px}
+  .mutation-item.locus-nested{margin-left:18px}
+  .mutation-columns{grid-template-columns:96px minmax(0,1fr); gap:8px}
+  .symbol-col{font-size:.86em; padding:3px 6px}
+  .name-col{font-size:.9em}
+  .gene-btn-group label{font-size:.78em; padding:7px 4px; min-width:44px}
+  /* Longer notes (e.g. the Sapphire explanation) can otherwise stretch the
+     list several screens tall at this tier -- same capped-scroll treatment
+     the sub-600px breakpoint already uses, just with more headroom since
+     there's more width/height to work with here. */
+  .mutation-warning-note, .mutation-info-note{
+    max-height:140px; overflow-y:auto; scrollbar-width:thin;
+  }
+  .mutation-warning-note::-webkit-scrollbar, .mutation-info-note::-webkit-scrollbar{width:4px}
+  .mutation-warning-note::-webkit-scrollbar-thumb, .mutation-info-note::-webkit-scrollbar-thumb{
+    background:var(--line-strong); border-radius:2px;
+  }
+}
+
+@media (max-width:600px){
+  body{padding:0 10px 80px}
+  .masthead{padding:30px 20px 34px; margin:16px 0 22px}
+  .masthead-brand{flex-direction:column; text-align:center; gap:14px}
+  .masthead-logo{width:64px; height:64px}
+  h1, .sub{text-align:center}
+  .sub{max-width:100%}
+  .theme-toggle{top:10px; right:10px; width:38px; height:38px; font-size:17px}
+  .container{gap:8px}
+  .bird-column{padding:12px 9px 14px; border-radius:9px}
+  .bird-column h2{font-size:.92em; gap:5px; flex-wrap:wrap; justify-content:center; margin-bottom:10px; padding-bottom:8px}
+  .bird-column h2 > span:last-child{font-size:.85em; padding:2px 8px}
+  .category-title{font-size:.76em; padding:7px 8px; gap:6px}
+  .moi-subtitle{font-size:.66em; letter-spacing:.03em}
+  .locus-subtitle{font-size:.7em; margin-left:5px}
+  .mutation-item{margin-left:4px; padding:7px 4px; border-radius:7px}
+  .mutation-item.locus-nested{margin-left:4px}
+  .mutation-label{gap:4px}
+  /* Shrunk further than you'd size a normal checkbox -- the whole row is
+     one clickable <label>, not just this box, so it stays just as easy
+     to tap while giving the name column back a few more px of width. */
+  .mutation-label input[type="checkbox"]{width:12px; height:12px}
+  /* Stack the symbol pill above the name instead of side-by-side -- on a
+     narrow phone the two fighting for the same row left too little width
+     for longer names (esp. unbroken CamelCase compounds like "AquaBlue1"),
+     forcing mid-word wraps. Stacked, the name gets the full row width. */
+  .mutation-columns{grid-template-columns:1fr; gap:5px}
+  .symbol-col{font-size:.66em; padding:2px 6px; border-radius:5px; justify-self:start}
+  .name-col{font-size:.82em; line-height:1.3}
+  .gene-options{gap:5px; margin-top:8px; padding-top:8px}
+  .gene-btn-group{gap:4px}
+  .gene-btn-group label{font-size:.68em; padding:6px 2px; min-width:34px; border-radius:14px}
+  .z-assign, .t-assign{padding:6px 8px}
+  /* "Assign to: Z1 Z2" / "Phase: T1 T2" must stay on one line -- flex-wrap
+     was letting the pills drop to their own row on narrower phones once
+     the label + two pills stopped fitting. nowrap + shrinking both the
+     label and pills keeps it on one line down to 320px without overflow. */
+  .linkage-row{flex-wrap:nowrap}
+  .z-assign label, .t-assign label{padding:5px 5px; margin:0 1px; font-size:.6em; min-width:0}
+  .linkage-label{font-size:.66em; margin-right:4px; white-space:nowrap}
+  .linkage-hint{font-size:10.5px; margin-top:5px; max-height:88px}
+  /* checkbox(12px) + label gap(4px) = 16px here, vs. 20px+14px=34px at
+     desktop -- notes need to track that shrunk indent or they drift right
+     of the mutation name they belong to and waste width on narrow screens */
+  .mutation-warning-note, .mutation-note, .mutation-info-note{margin-left:16px}
+  .mutation-warning-note, .mutation-info-note{font-size:.72em; padding:8px 9px}
+  .mutation-note{font-size:.72em}
+  /* Long notes (e.g. the Dominant Reduced / DM Jade explanations) were
+     stretching the whole mutation list several screens tall on a phone.
+     Cap them to a short scrollable box instead -- info-note gets the same
+     bordered-box treatment warning-note already has, so the "there's more,
+     scroll" affordance is visible rather than looking like clipped text. */
+  .mutation-warning-note, .mutation-info-note{
+    max-height:104px; overflow-y:auto; scrollbar-width:thin;
+  }
+  .mutation-info-note{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r-sm);
+  }
+  .mutation-warning-note::-webkit-scrollbar, .mutation-info-note::-webkit-scrollbar{width:4px}
+  .mutation-warning-note::-webkit-scrollbar-thumb, .mutation-info-note::-webkit-scrollbar-thumb{
+    background:var(--line-strong); border-radius:2px;
+  }
+
+  /* The bottom "Hide/Show Genetic Symbols" button sits directly above
+     Reset/Generate in the same cluster, so it matches their full width for
+     visual consistency. The standalone copy right after species selection
+     (#toggle-symbols-btn) isn't part of that cluster and keeps its own
+     compact size. */
+  /* ==========================================================
+     MOBILE ACTION BUTTONS (Horizontal & Proportioned)
+     ========================================================== */
+  #controls-container .action-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px; 
+    align-items: stretch;
+    width: 100%;
+  }
+
+  button#calc-btn, 
+  button#reset-btn, 
+  button#toggle-symbols-btn-2 {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 10px 4px !important; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  /* 1. Generate Offspring (Largest ~ 45%) */
+  button#calc-btn {
+    flex: 2.2; 
+    font-size: 0.82em !important;
+  }
+  button#calc-btn::before {
+    margin-right: 5px; 
+  }
+
+  /* 2. Show Genetic Symbols (Medium ~ 35%) */
+  button#toggle-symbols-btn-2 {
+    flex: 1.6; 
+    font-size: 0.72em !important;
+    letter-spacing: -0.01em; 
+  }
+
+  /* 3. Reset (Smallest ~ 20%) */
+  button#reset-btn {
+    flex: 1; 
+    font-size: 0.72em !important;
+  }
+  button#reset-btn::before {
+    margin-right: 3px; 
+  }
+  
+  /* Standalone toggle near the top */
+  button#toggle-symbols-btn {
+    width: auto; 
+    display: inline-block; 
+    padding: 9px 16px; 
+    font-size: .8em;
+  }
+
+  /* 1. Reset all table elements to block */
+  .parents-table, .parents-table thead, .parents-table tbody,
+  .parents-table th, .parents-table td, .parents-table tr { display: block; width: 100%; }
+  .parents-table thead { display: none; }
+  .parents-table tr { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .parents-table td { padding: 4px 0; border: none; }
+
+  #results-content table, #results-content thead, #results-content tbody,
+  #results-content th, #results-content td, #results-content tr { display: block; width: 100%; }
+  
+  #results-content thead { display: none; }
+  #results-content table { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; margin-bottom: 18px; }
+  
+  /* 2. Turn the Offspring ROW into a Flex container */
+  #results-content tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  #results-content tr:last-child { border-bottom: none; }
+  #results-content td { border: none; padding: 0; }
+  
+  /* 3. Force Name and Probability side-by-side */
+  #results-content td:nth-child(1) {
+    width: 65%; /* Takes up left side */
+    padding-right: 12px;
+    line-height: 1.4;
+  }
+  
+  #results-content td:nth-child(2) {
+    width: 35%; /* Takes up right side */
+    text-align: right;
+    font-weight: 800;
+    color: var(--forest);
+    font-size: 1.1em;
+  }
+  
+  /* 4. Force Formula box to drop below them */
+  #results-content td:nth-child(3) {
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  #results-content td.col-genetic-formula {
+    padding: 10px 12px;
+    background: var(--grass-soft);
+    border: 1#results-content table, #results-content tbody,
+  #results-content th, #results-content td, #results-content tr { display: block; width: 100%; }
+  
+  /* 1. Restore the Table Header (thead) and make it match the flex layout */
+  #results-content thead { display: block; }
+  
+  #results-content table { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; margin-bottom: 18px; }
+  
+  /* 2. Flex properties for both the Header Row and the Data Rows */
+  #results-content thead tr,
+  #results-content tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  #results-content thead tr {
+    padding: 0;
+    background: linear-gradient(135deg, var(--forest), var(--forest-2));
+  }
+  
+  #results-content tbody tr {
+    padding: 14px 0; /* Padding moved to cells to handle the vertical line */
+  }
+  #results-content tbody tr:last-child { border-bottom: none; }
+  
+  #results-content th, #results-content td { border: none; }
+  
+  /* 3. Column 1: Name (65% width with a visible right border) */
+  #results-content th:nth-child(1),
+  #results-content td:nth-child(1) {
+    width: 65%;
+    padding: 0 16px;
+    border-right: 1px solid var(--line); /* THE VISIBLE DIVIDING LINE */
+  }
+  
+  #results-content th:nth-child(1) {
+    padding: 12px 16px;
+    border-right: 1px solid rgba(255,255,255,0.2); /* Lighter line for the dark header */
+  }
+  
+  /* 4. Column 2: Probability (35% width) */
+  #results-content th:nth-child(2),
+  #results-content td:nth-child(2) {
+    width: 35%;
+    padding: 0 16px;
+    text-align: right;
+  }
+  
+  #results-content th:nth-child(2) {
+    padding: 12px 16px;
+  }
+  
+  #results-content td:nth-child(2) {
+    font-weight: 800;
+    color: var(--forest);
+    font-size: 1.1em;
+  }
+  
+  /* 5. Column 3: Genetic Formula (Drops to the next line) */
+  #results-content th:nth-child(3) {
+    width: 100%;
+    padding: 8px 16px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  #results-content td:nth-child(3) {
+    width: 100%;
+    margin-top: 14px;
+    padding: 0 16px;
+  }
+  
+  #results-content td.col-genetic-formula {
+    background: var(--grass-soft);
+    border: 1px solid var(--grass-border);
+    border-radius: var(--r-sm);
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.95em;
+    padding: 10px 12px;
+    margin-left: 16px;
+    width: calc(100% - 32px); /* Keeps it inside the row padding */
+  }
+  #results-content td.col-genetic-formula::-webkit-scrollbar { height: 4px; }
+  #results-content td.col-genetic-formula::-webkit-scrollbar-thumb { background: var(--grass); border-radius: 2px; }
+
+  /* 6. Keep the Parents table stacked-card labels (They still need them) */
+  .parents-table td::before {
+    display: block; 
+    font-size: .66em; 
+    font-weight: 800; 
+    text-transform: uppercase;
+    letter-spacing: .05em; 
+    color: var(--ink-soft); 
+    margin-bottom: 3px;
+  }
+  
+  .parents-table td:nth-child(1)::before { content: "Genotype / Mutation Name"; }
+  .parents-table td:nth-child(2)::before { content: "Genetic Formulas"; }px solid var(--grass-border);
+    border-radius: var(--r-sm);
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    font-size: 0.95em;
+  }
+  #results-content td.col-genetic-formula::-webkit-scrollbar { height: 4px; }
+  #results-content td.col-genetic-formula::-webkit-scrollbar-thumb { background: var(--grass); border-radius: 2px; }
+
+  /* 5. Mobile Headers (Labels) */
+  .parents-table td::before, #results-content td::before {
+    display: block; 
+    font-size: .66em; 
+    font-weight: 800; 
+    text-transform: uppercase;
+    letter-spacing: .05em; 
+    color: var(--ink-soft); 
+    margin-bottom: 3px;
+  }
+  
+  .parents-table td:nth-child(1)::before { content: "Genotype / Mutation Name"; }
+  .parents-table td:nth-child(2)::before { content: "Genetic Formulas"; }
+  
+  #results-content td:nth-child(1)::before { content: "Genotype / Mutation Name"; text-align: left; }
+  #results-content td:nth-child(2)::before { content: "Probability"; text-align: right; }
+  #results-content td:nth-child(3)::before { content: "Genetic Formulas"; text-align: left; }
+}
+
+@media (max-width:420px){
+  .container{gap:6px}
+  .bird-column{padding:10px 7px 12px}
+  .mutation-columns{gap:4px}
+  .symbol-col{font-size:.6em; padding:2px 5px}
+  .name-col{font-size:.78em}
+  .gene-btn-group label{font-size:.62em; padding:5px 1px; min-width:28px}
+  /* "Assign to: Z1 Z2" / "Phase: T1 T2" still overflowed its box by a few px
+     at the narrowest supported width (320px, e.g. iPhone SE) even with the
+     600px tier's shrinking -- tighten the label gap and pill padding a bit
+     further just at this width. */
+  .z-assign, .t-assign{padding:6px 5px}
+  .linkage-label{margin-right:2px}
+  .z-assign label, .t-assign label{padding:5px 3px; margin:0}
+}
+
+@media (max-width:600px){
+  /* overflow-x is a safety net only — the shrinking above should make both
+     columns fit without it on real phone widths; flex:1 1 0 with no
+     min-width floor lets them split whatever space is actually available. */
+  .container{flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px}
+  .bird-column{flex:1 1 0}
+}
+
+@media (max-width:600px) and (min-width:1px){
+  .share-link-box input{min-width:0; width:100%}
+}
+/* ============================================================================
+   WIDE TIER (>=1600px) — reveal the sticky live-preview panel to the right
+   of the Dam column. Page max-width grows to 1700px: 440px panel + 20px gap
+   on top of the original 1240px two-column width -- chosen specifically so
+   Sire/Dam end up exactly their original (pre-feature) width rather than
+   needing to shrink to make room for the wider panel.
+   Scoped to .container/#results-container/#shared-banner only -- NOT the
+   masthead -- so the hero/tagline keep their current, more readable line
+   length rather than stretching to match. Below this width (a large amount
+   of real "desktop" traffic is a 1280-1440px laptop window, not a 1920px
+   monitor) the layout quietly falls back to today's behavior: no panel,
+   #controls-container is the only way to act.
+   ========================================================================== */
+@media (min-width:1600px){
+  body{max-width:1700px}
+  .masthead, .header-controls{max-width:1240px; margin-left:auto; margin-right:auto}
+  .live-preview-panel{display:flex}
+  /* The original Reset/Generate/Toggle row stays -- both #controls-container
+     and .container start at the same left edge (both are direct, unpadded
+     body children), so width-matching this row to just the Sire+Dam block
+     (total width minus the 440px panel and the one 20px gap before it)
+     keeps its centered button row aligned under Sire+Dam only, instead of
+     drifting off-center under the full, wider page. */
+  #controls-container{width:calc(100% - 460px)}
+}
+
+/* ============================================================================
+   PHONE TIER (<=600px) — reveal the fixed bottom preview bar. Reuses the
+   existing 600px breakpoint (where the horizontal-scroll .container
+   fallback already kicks in) rather than introducing a new number into the
+   820/600/420 cascade. The original #controls-container row stays too
+   (Reset/Generate/Toggle duplicated between it and the bar) -- centered
+   under the full-width Sire/Dam pair as before, since there's no third
+   column at this width to offset against.
+   ========================================================================== */
+@media (max-width:600px){
+  .mobile-preview-bar.is-visible{display:block}
+  /* Keeps the last mutation item (and the validation reminder / results
+     area) from being permanently covered by the fixed bar. Collapsed-bar
+     height only -- the expanded state scrolls its own content instead of
+     growing the page, so it doesn't need to be accounted for here. */
+  body{padding-bottom:64px}
+}
+
+/* ============================================================================
+   SMART SEARCH ENGINE UI
+   ========================================================================== */
+.search-container {
+  background: var(--paper);
+  padding: 15px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  margin-bottom: 18px;
+}
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: var(--forest);
+}
+.auto-select-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-weight: 700;
+  user-select: none;
+}
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px; /* Extra padding-left for the icon */
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  font-size: 1em;
+  outline: none;
+  box-sizing: border-box;
+  background: var(--card);
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.search-input::placeholder {
+  font-style: italic;
+}
+.search-input:focus {
+  border-color: var(--grass);
+  box-shadow: 0 0 0 3px var(--grass-soft);
+}
+.search-warning {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--gold-soft);
+  color: var(--gold-ink);
+  border-left: 4px solid var(--gold);
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+.suggestions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.suggestion-btn {
+  background: var(--card);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.suggestion-btn:hover {
+  border-color: var(--grass);
+  color: var(--forest);
+}
+.suggestion-btn.added {
+  background: linear-gradient(135deg, var(--grass), var(--grass-2));
+  border-color: var(--grass-2);
+  color: #fff;
+  box-shadow: var(--sh-sm);
+}
+.suggestion-btn.read-only-mode {
+  pointer-events: none;
+  opacity: 0.9;
+}
+.linkage-controls {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================================================
+   MOBILE UNIFIED SEARCH HUB
+   ========================================================================== */
+#mobile-unified-search-hub {
+  display: none; /* Hidden completely on desktop */
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--sh-md);
+  margin-bottom: 8px; /* Spacing before the columns */
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  /* Only show on mobile IF the JS adds the active class */
+  #mobile-unified-search-hub.is-active {
+    display: block; 
+  }
+
+  .unified-hub-title {
+    font-family: var(--display);
+    font-weight: 700;
+    color: var(--forest);
+    background: var(--grass-soft);
+    padding: 12px 16px;
+    font-size: 1.05em;
+    border-bottom: 2px solid var(--grass);
+    text-align: center;
+  }
+
+  #unified-hub-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Reset the inner containers so they blend perfectly into the unified hub */
+  #unified-hub-body .search-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 16px 14px;
+  }
+
+  /* Add heavy color-coded top borders to separate Sire and Dam zones */
+  #unified-hub-body #sire-search-container {
+    border-top: 4px solid var(--sire);
+  }
+
+  #unified-hub-body #dam-search-container {
+    border-top: 4px solid var(--dam);
+  }
+
+  /* Adjust header spacing inside the unified hub */
+  #unified-hub-body .search-header {
+    margin-bottom: 12px;
+  }
+}

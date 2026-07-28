@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <title>Agapornis Genetic Calculator</title>
+    <script>
+    (function () {
+        try {
+            var saved = localStorage.getItem("agapornis-theme");
+            var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+    })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="hide-genetic-symbols">
+
+    <header class="masthead">
+        <button type="button" id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+            <span id="theme-toggle-icon">&#9789;</span>
+        </button>
+        <div class="masthead-brand">
+            <div class="masthead-text">
+                <h1>Agapornis Genetic Calculator</h1>
+                <p class="sub">Predict chick colours and split combinations before you pair your lovebirds.</p>
+            </div>
+            <svg class="masthead-logo" viewBox="0 0 100 100" aria-hidden="true">
+                <path class="masthead-logo-tail" d="M22 66 C10 70 4 82 2 92 C15 86 24 78 30 68 Z"/>
+                <ellipse class="masthead-logo-body" cx="47" cy="60" rx="27" ry="23"/>
+                <path class="masthead-logo-wing" d="M28 50 C39 42 57 44 64 58 C51 61 37 60 28 50 Z"/>
+                <circle class="masthead-logo-head" cx="68" cy="35" r="18"/>
+                <path class="masthead-logo-beak" d="M83 31 C92 32 94 39 87 44 C82 41 80 36 83 31 Z"/>
+                <circle class="masthead-logo-eye" cx="72" cy="31" r="3"/>
+            </svg>
+        </div>
+    </header>
+
+    <div id="shared-banner" style="display:none;"></div>
+
+    <div class="header-controls" id="header-controls">
+        <label for="species-trigger"><strong>Select Agapornis Species:</strong></label><br><br>
+        <div class="custom-select" id="species-custom">
+            <button type="button" class="custom-select-trigger" id="species-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span id="species-trigger-label">-- Select Species --</span>
+                <span class="custom-select-arrow">&#9662;</span>
+            </button>
+            <ul class="custom-select-options" id="species-options" role="listbox" style="display:none;">
+                <li role="option" data-value="none">-- Select Species --</li>
+                <li role="option" data-value="white_eye_ring">White Eye-Ring Group (<i>A. fischeri</i>, <i>A. personatus</i>, <i>A. lilianae</i>, <i>A. nigrigenis</i>)</li>
+                <li role="option" data-value="roseicollis"><i>Agapornis roseicollis</i></li>
+                <li role="option" data-value="taranta"><i>Agapornis taranta</i></li>
+            </ul>
+        </div>
+        <select id="species" style="display:none;" tabindex="-1" aria-hidden="true">
+            <option value="none">-- Select Species --</option>
+            <option value="white_eye_ring">White Eye-Ring Group (Fischeri, Personatus, Lilianae, Nigrigenis)</option>
+            <option value="roseicollis">Agapornis roseicollis</option>
+            <option value="taranta">Agapornis taranta</option>
+        </select>
+    </div>
+
+    <div id="symbol-toggle-wrap" style="display:none; text-align:left; margin: 0 0 15px;">
+        <button type="button" id="toggle-symbols-btn" class="js-toggle-symbols-btn" onclick="toggleGeneticSymbols()">Show Genetic Symbols</button>
+    </div>
+<!-- NEW: Mobile Unified Search Hub -->
+        <div id="mobile-unified-search-hub">
+        <div class="unified-hub-title">Quick Add Mutation</div>
+        <div id="unified-hub-body"></div>
+    </div>
+    <div class="container" id="calculator-ui" style="display: none;">
+        
+        <!-- SIRE COLUMN -->
+        <div class="bird-column" id="sire-column">
+            <h2>1.0 Sire (Male) <span class="sex-badge sex-badge-sire" title="Male lovebirds are the homogametic sex (ZZ)">&#9794; ZZ</span></h2>
+            
+            <div class="search-container" id="sire-search-container" style="display: none;">
+                <div class="search-header">
+                    <label for="sire-search-input"><strong>Quick Add Mutation</strong></label>
+                    <label class="auto-select-toggle">
+                        <input type="checkbox" id="sire-auto-select" checked> Auto Select
+                    </label>
+                </div>
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="sire-search-input" class="search-input" placeholder="Enter male mutation name here" autocomplete="off">
+                </div>
+                <div id="sire-linkage-controls" class="linkage-controls"></div>
+                <div id="sire-suggestions-container" class="suggestions-container"></div>
+                <div id="sire-search-warning" class="search-warning" style="display: none;"></div>
+            </div>
+
+            <div id="sire-categories"></div>
+        </div>
+
+        <!-- DAM COLUMN -->
+        <div class="bird-column" id="dam-column">
+            <h2>0.1 Dam (Female) <span class="sex-badge sex-badge-dam" title="Female lovebirds are the heterogametic sex (ZW) &mdash; they carry the sex-linked traits they pass to sons">&#9792; ZW</span></h2>
+            
+            <div class="search-container" id="dam-search-container" style="display: none;">
+                <div class="search-header">
+                    <label for="dam-search-input"><strong>Quick Add Mutation</strong></label>
+                    <label class="auto-select-toggle">
+                        <input type="checkbox" id="dam-auto-select" checked> Auto Select
+                    </label>
+                </div>
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="dam-search-input" class="search-input" placeholder="Enter female mutation name here" autocomplete="off">
+                </div>
+                <div id="dam-linkage-controls" class="linkage-controls"></div>
+                <div id="dam-suggestions-container" class="suggestions-container"></div>
+                <div id="dam-search-warning" class="search-warning" style="display: none;"></div>
+            </div>
+
+            <div id="dam-categories"></div>
+        </div>
+
+        <div class="live-preview-panel" id="live-preview-panel" aria-live="polite">
+            <div class="live-preview-heading">Live Preview</div>
+            <div id="live-preview-body" class="live-preview-body">
+                <p class="live-preview-empty"></p>
+            </div>
+            <div class="live-preview-actions">
+                <button type="button" id="live-preview-toggle-symbols-btn" class="js-toggle-symbols-btn" onclick="toggleGeneticSymbols()">Show Genetic Symbols</button>
+                <button type="button" id="live-preview-reset-btn" onclick="resetCalculator()">Reset</button>
+                <button type="button" id="live-preview-calc-btn" onclick="calculateGenetics()">Generate Offspring</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-preview-bar" class="mobile-preview-bar" role="region" aria-label="Live parent preview">
+        <div class="mobile-preview-collapsed">
+            <button type="button" class="mobile-preview-expand-btn" onclick="toggleMobilePreview()" aria-label="Expand live preview" aria-expanded="false">
+                <span id="mobile-preview-compact-names" class="mobile-preview-names"></span>
+                <span id="mobile-preview-arrow" class="mobile-preview-arrow">&#9652;</span>
+            </button>
+            <button type="button" id="mobile-preview-generate-btn" class="mobile-preview-generate-btn" onclick="calculateGenetics()">Generate</button>
+        </div>
+        <div class="mobile-preview-expanded" id="mobile-preview-expanded">
+            <div id="mobile-preview-body" class="live-preview-body">
+                <p class="live-preview-empty"></p>
+            </div>
+            <div class="live-preview-actions">
+                <button type="button" id="mobile-preview-toggle-symbols-btn" class="js-toggle-symbols-btn" onclick="toggleGeneticSymbols()">Show Genetic Symbols</button>
+                <button type="button" id="mobile-preview-reset-btn" onclick="resetCalculator()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-container">
+        <div id="validation-reminder" class="validation-reminder" style="display:none;"></div>
+        <div class="action-buttons">
+            <button type="button" id="toggle-symbols-btn-2" class="js-toggle-symbols-btn" style="display: none;" onclick="toggleGeneticSymbols()">Show Genetic Symbols</button>
+            <button type="button" id="reset-btn" style="display: none;" onclick="resetCalculator()">Reset</button>
+            <button type="button" id="calc-btn" style="display: none;" onclick="calculateGenetics()">Generate Offspring</button>
+        </div>
+    </div>
+
+    <div id="results-container">
+        <h2>Breeding Outcome</h2>
+        <div id="parents-summary" class="parents-summary"></div>
+        <div id="results-content"></div>
+
+        <div id="share-container" style="display:none; text-align:center; margin-top:20px;">
+            <div class="share-print-buttons">
+                <button type="button" id="share-btn" onclick="shareResults()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="button-icon"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Share Results
+                </button>
+                <button type="button" id="print-btn" onclick="window.print()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="button-icon"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                    Print
+                </button>
+            </div>
+            <div id="share-link-box" class="share-link-box" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

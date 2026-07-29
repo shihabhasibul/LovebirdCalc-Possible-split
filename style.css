@@ -90,7 +90,7 @@ body{
 /* ---------- page title / masthead ---------- */
 .masthead{
   position:relative; overflow:hidden; border-radius:20px; margin:26px 0 30px;
-  padding:38px 34px 42px; box-shadow:var(--sh-lg);
+  padding:38px 40px 42px; box-shadow:var(--sh-lg);
   background:linear-gradient(135deg,var(--forest) 0%,var(--forest-2) 55%,#276241 100%);
 }
 .masthead::before{ /* subtle leaf-light sheen */

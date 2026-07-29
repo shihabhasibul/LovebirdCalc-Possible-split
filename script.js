@@ -2280,7 +2280,7 @@ const customDictionary = [
     { keys: ["mauve"], res: (sp) => [{id:"dark_factor", val:2}, {id: sp==="roseicollis"?"rose_blue":"blue1", val:2}] },
     { keys: ["cobalt"], res: (sp) => [{id:"dark_factor", val:1}, {id: sp==="roseicollis"?"rose_blue":"blue1", val:2}] },
     { keys: ["aqua homo", "aqua homozygote", "aqua homozygotic"], res: () => [{id:"aqua", val:2}] },
-    { keys: ["b1b2", "parblue", "par-blue", "par blue"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
+    { keys: ["b1b2", "parblue", "par-blue", "par blue", "pb"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
     { keys: ["parblue", "par-blue", "par blue"], sp: "roseicollis", res: () => [{id:"turquoise", val:2}], suggest: () => [{id:"aqua", val:2}] },
     { keys: ["b1", "bl1", "blue", "white collared", "white collar", "white-collared", "white-collar", "whitecollar", "whitecollared", "sky blue", "skyblue)"], sp: "white_eye_ring", res: () => [{id:"blue1", val:2}] },
     { keys: ["blue", "sky blue", "skyblue)", "bl"], sp: "roseicollis", res: () => [{id:"rose_blue", val:2}] },

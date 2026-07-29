@@ -1071,24 +1071,73 @@ function combineBaseAndAxisPhrase(basePhrase, axisPhrase) {
 
 // A lone Z-linked trait's chromosome side is arbitrary (nothing to be in phase
 // with), so it doesn't branch. The second and every subsequent Z-linked trait
-// added on top of whatever's already fixed DOES need both phase options shown,
-// since a possible split is (by definition) not something the breeder can
-// reliably assign a side to (rule 6).
+// added on top of whatever's already fixed DOES need both phase options shown.
+//
+// With exactly 2 total Z-linked alleles in play, "cis"/"trans" relative to the
+// base is unambiguous. With 3+ (e.g. a confirmed SL trait plus two possible-
+// split SL traits), that binary check only asks "are the extras all opposite
+// the base?" -- it can't tell that two of the EXTRA traits are cis with each
+// other while both sit trans to the base. That collapsed 3 genuinely distinct
+// arrangements into one duplicate-labeled "trans phase" bucket and silently
+// dropped the cis-with-each-other case. For 3+ alleles we now build an
+// explicit per-chromosome description instead of a single cis/trans flag.
+function alleleDisplayName(allele) {
+    const m = mutationDB.find(x => x.alleles && x.alleles.includes(allele));
+    return m ? (m.result_label || m.name) : allele;
+}
+
+function describeMultiZPhase(z1, z2) {
+    let z1Names = z1.map(alleleDisplayName);
+    let z2Names = z2.map(alleleDisplayName);
+    // With 3+ genes on only 2 chromosomes, pigeonhole guarantees at least one
+    // pair always ends up cis -- so a single blanket "(trans phase)" suffix
+    // for the whole arrangement is never accurate once 2+ genes share a Z.
+    // Instead, name each chromosome's contents directly and only add "cis"
+    // next to a group that actually has 2+ genes on it.
+    if (z1Names.length === 0 || z2Names.length === 0) {
+        let all = z1Names.length ? z1Names : z2Names;
+        return `${all.join(' + ')} (all cis, same Z)`;
+    }
+    let z1Label = z1Names.length > 1 ? `${z1Names.join(' + ')} cis` : z1Names[0];
+    let z2Label = z2Names.length > 1 ? `${z2Names.join(' + ')} cis` : z2Names[0];
+    return `${z1Label} / ${z2Label}`;
+}
+
 function expandZPhaseVariants(baseZ1, baseZ2, extraSLAlleles) {
-    let variants = [{ z1: [...baseZ1], z2: [...baseZ2], phaseLabel: '' }];
+    let variants = [{ z1: [...baseZ1], z2: [...baseZ2] }];
     extraSLAlleles.forEach(allele => {
         let next = [];
         variants.forEach(v => {
             let totalExisting = v.z1.length + v.z2.length;
             if (totalExisting === 0) {
-                next.push({ z1: [...v.z1, allele], z2: [...v.z2], phaseLabel: v.phaseLabel });
+                next.push({ z1: [...v.z1, allele], z2: [...v.z2] });
             } else {
-                next.push({ z1: [...v.z1, allele], z2: [...v.z2], phaseLabel: v.phaseLabel ? `${v.phaseLabel}, Z1` : 'Z1' });
-                next.push({ z1: [...v.z1], z2: [...v.z2, allele], phaseLabel: v.phaseLabel ? `${v.phaseLabel}, Z2` : 'Z2' });
+                next.push({ z1: [...v.z1, allele], z2: [...v.z2] });
+                next.push({ z1: [...v.z1], z2: [...v.z2, allele] });
             }
         });
         variants = next;
     });
+
+    // Flag the variants so the scenario builder knows how to format the text.
+    // If this branch didn't add any new sex-linked trait at all (e.g. the
+    // "not split for X" outcome), there's no new phase uncertainty being
+    // resolved here -- the bird's existing phase is already implied by its
+    // confirmed genotype name, so the heading shouldn't restate it.
+    variants.forEach(v => {
+        let total = v.z1.length + v.z2.length;
+        if (extraSLAlleles.length === 0) {
+            v.phaseLabel = '';
+        } else if (total > 2) {
+            v.phaseLabel = describeMultiZPhase(v.z1, v.z2);
+            v.phaseIsCustom = true;
+        } else if (total > 1) {
+            v.phaseLabel = (v.z2.length === 0 || v.z1.length === 0) ? 'cis' : 'trans';
+        } else {
+            v.phaseLabel = '';
+        }
+    });
+
     return variants;
 }
 
@@ -1114,7 +1163,7 @@ function applyExtraTraitsToState(baseState, extraTraits) {
     });
     let zVariants = expandZPhaseVariants(baseState.z1, baseState.z2, extraSL);
     return zVariants.map(v => ({
-        autoGenes, z1: v.z1, z2: v.z2, dfPhase: baseState.dfPhase, phaseLabel: v.phaseLabel
+        autoGenes, z1: v.z1, z2: v.z2, dfPhase: baseState.dfPhase, phaseLabel: v.phaseLabel, phaseIsCustom: v.phaseIsCustom
     }));
 }
 
@@ -1129,7 +1178,24 @@ function buildBirdScenarios(baseState, axes) {
     branches.forEach(b => {
         let states = applyExtraTraitsToState(baseState, b.extraTraits);
         states.forEach(s => {
-            let fullLabel = s.phaseLabel ? (b.label ? `${b.label} (${s.phaseLabel})` : s.phaseLabel) : b.label;
+            let fullLabel = b.label || '';
+
+            // Intercept Z-linked scenarios to apply exact text formatting
+            if (s.phaseIsCustom) {
+                // 3+ Z-linked alleles: describeMultiZPhase already names every
+                // trait per chromosome, so it fully replaces the generic
+                // "split X and Y (both)" phrasing rather than patching it.
+                fullLabel = s.phaseLabel;
+            } else if (s.phaseLabel === 'cis') {
+                fullLabel = fullLabel.replace(' and ', '-').replace(' (both)', '');
+                fullLabel = fullLabel ? `${fullLabel} (cis phase)` : '(cis phase)';
+            } else if (s.phaseLabel === 'trans') {
+                fullLabel = fullLabel.replace(' and ', ' and split ').replace(' (both)', '');
+                fullLabel = fullLabel ? `${fullLabel} (trans phase)` : '(trans phase)';
+            } else if (s.phaseLabel) {
+                fullLabel = fullLabel ? `${fullLabel} (${s.phaseLabel})` : s.phaseLabel;
+            }
+
             out.push({ label: fullLabel, state: { autoGenes: s.autoGenes, z1: s.z1, z2: s.z2, dfPhase: s.dfPhase } });
         });
     });
@@ -1392,31 +1458,28 @@ function calculateGenetics() {
 
         const sireDisplay = buildParentsSummaryDisplay(sireBase, possibleAxesState.male, "male");
         const damDisplay = buildParentsSummaryDisplay(damBase, possibleAxesState.female, "female");
-        parentsSummaryEl.innerHTML = buildParentsTableHTML(sireDisplay.name, sireDisplay.symbol, damDisplay.name, damDisplay.symbol, [], [], []) +
-            `<div class="mutation-warning-note" style="margin-left:0;">This pairing includes possible-split (uncertain) traits — marked '?' above — so ${combos.length} scenario${combos.length > 1 ? 's are' : ' is'} shown below, each assuming a different combination is actually true.</div>`;
 
         const sireBasePhrase = computeBaseNamePhrase(sireBase, "male");
         const damBasePhrase = computeBaseNamePhrase(damBase, "female");
 
-        let accordionsHTML = combos.map((c, idx) => {
+        const combosData = combos.map((c, idx) => {
             let maleFull = capitalizeFirst(combineBaseAndAxisPhrase(sireBasePhrase, c.ss.label));
             let femaleFull = capitalizeFirst(combineBaseAndAxisPhrase(damBasePhrase, c.ds.label));
-            let summaryLabel = `If male is ${maleFull}, and female is ${femaleFull}`;
-            return `<details class="category poss-scenario-accordion"${idx === 0 ? ' open' : ''}>
-                <summary class="category-title">${summaryLabel}</summary>
-                <div class="poss-scenario-body">${buildOffspringResultsHTML(combosResults[idx].offspringArray, combosResults[idx].hasSL)}</div>
-            </details>`;
-        }).join('');
-        resultsContentEl.innerHTML = accordionsHTML;
+            return {
+                summaryLabel: `If male is ${maleFull}, and female is ${femaleFull}`,
+                hasSL: combosResults[idx].hasSL,
+                offspring: combosResults[idx].offspringArray.map(o => ({ symbol: o.symbol, name: o.name, prob: o.prob, expressedIDs: o.expressedIDs, splitIDs: o.splitIDs }))
+            };
+        });
 
-        const resultsContainerEl = document.getElementById("results-container");
-        if (resultsContainerEl) resultsContainerEl.style.display = "block";
-        const shareContainer = document.getElementById("share-container");
-        const shareBtn = document.getElementById("share-btn");
-        if (shareContainer) shareContainer.style.display = "block";
-        if (shareBtn) shareBtn.style.display = "none"; // multi-scenario sharing not yet supported (Step beyond current scope)
+        renderMultiScenarioResults(sireDisplay, damDisplay, combosData, true);
 
-        lastCalcData = null; // multi-scenario results aren't shareable yet
+        lastCalcData = {
+            type: "multi",
+            sire: sireDisplay,
+            dam: damDisplay,
+            combos: combosData
+        };
     }
 
     const resultsEl = document.getElementById("results-container");
@@ -1467,6 +1530,31 @@ function buildOffspringResultsHTML(resultsData, hasSL) {
     });
 
     return html;
+}
+
+function buildScenarioAccordionsHTML(combos) {
+    // combos: [{ summaryLabel, hasSL, offspring }]
+    return combos.map((c, idx) => `<details class="category poss-scenario-accordion"${idx === 0 ? ' open' : ''}>
+                <summary class="category-title">${c.summaryLabel}</summary>
+                <div class="poss-scenario-body">${buildOffspringResultsHTML(c.offspring, c.hasSL)}</div>
+            </details>`).join('');
+}
+
+function renderMultiScenarioResults(sireInfo, damInfo, combos, showShareButton = true) {
+    const resultsContentEl = document.getElementById("results-content");
+    const parentsSummaryEl = document.getElementById("parents-summary");
+    const resultsContainerEl = document.getElementById("results-container");
+
+    parentsSummaryEl.innerHTML = buildParentsTableHTML(sireInfo.name, sireInfo.symbol, damInfo.name, damInfo.symbol, [], [], []) +
+        `<div class="mutation-warning-note" style="margin-left:0;">This pairing includes possible-split (uncertain) traits — marked '?' above — so ${combos.length} scenario${combos.length > 1 ? 's are' : ' is'} shown below, each assuming a different combination is actually true.</div>`;
+
+    resultsContentEl.innerHTML = buildScenarioAccordionsHTML(combos);
+
+    if (resultsContainerEl) resultsContainerEl.style.display = "block";
+    const shareContainer = document.getElementById("share-container");
+    const shareBtn = document.getElementById("share-btn");
+    if (shareContainer) shareContainer.style.display = "block";
+    if (shareBtn) shareBtn.style.display = showShareButton ? "inline-flex" : "none";
 }
 
 function renderResults(resultsData, hasSL, showShareButton = true) {
@@ -1634,6 +1722,13 @@ function enterSharedView(payload) {
         const newCalcSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="button-icon" style="margin-right: 6px; vertical-align: -4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>`;
         
         banner.innerHTML = `<span>You're viewing shared breeding results (read-only).</span><button type="button" class="js-toggle-symbols-btn" onclick="toggleGeneticSymbols()">${dnaSvg}${symbolsLabel}</button><button type="button" onclick="exitSharedView()">${newCalcSvg}Start New Calculation</button>`;
+    }
+
+    if (payload.type === "multi") {
+        // Shared possible-split pairing: rebuild the same collapsible per-scenario
+        // accordions the live calculator shows, just read-only (no Share button).
+        renderMultiScenarioResults(payload.sire, payload.dam, payload.combos, false);
+        return;
     }
 
     let sireWarnings = payload.sire.warnings || [];
@@ -1906,7 +2001,7 @@ function findSplitSectionStart(query) {
 // Breaks the split-section text into chunks separated by OR / POSS delimiters
 // (including the "//" shorthand), preserving which delimiter preceded each chunk.
 function tokenizeSplitSection(text) {
-    let norm = text.replace(/\/\//g, ' §§poss§§ ').replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+    let norm = text.replace(/\/\//g, ' §§poss§§ ').replace(/\//g, ' split ').replace(/\s+/g, ' ').trim();
     let words = norm.split(' ').filter(w => w);
 
     let chunks = [];
@@ -2185,10 +2280,10 @@ const customDictionary = [
     { keys: ["mauve"], res: (sp) => [{id:"dark_factor", val:2}, {id: sp==="roseicollis"?"rose_blue":"blue1", val:2}] },
     { keys: ["cobalt"], res: (sp) => [{id:"dark_factor", val:1}, {id: sp==="roseicollis"?"rose_blue":"blue1", val:2}] },
     { keys: ["aqua homo", "aqua homozygote", "aqua homozygotic"], res: () => [{id:"aqua", val:2}] },
-    { keys: ["b1b2", "parblue"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
-    { keys: ["parblue"], sp: "roseicollis", res: () => [{id:"turquoise", val:2}], suggest: () => [{id:"aqua", val:2}] },
-    { keys: ["b1", "bl1", "blue", "white collared", "white collar", "white-collared", "white-collar", "whitecollar", "whitecollared"], sp: "white_eye_ring", res: () => [{id:"blue1", val:2}] },
-    { keys: ["blue"], sp: "roseicollis", res: () => [{id:"rose_blue", val:2}] },
+    { keys: ["b1b2", "parblue", "par-blue", "par blue"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
+    { keys: ["parblue", "par-blue", "par blue"], sp: "roseicollis", res: () => [{id:"turquoise", val:2}], suggest: () => [{id:"aqua", val:2}] },
+    { keys: ["b1", "bl1", "blue", "white collared", "white collar", "white-collared", "white-collar", "whitecollar", "whitecollared", "sky blue", "skyblue)"], sp: "white_eye_ring", res: () => [{id:"blue1", val:2}] },
+    { keys: ["blue", "sky blue", "skyblue)", "bl"], sp: "roseicollis", res: () => [{id:"rose_blue", val:2}] },
     { keys: ["b2", "bl2", "b2 white collared", "b2 white collar", "b2 white-collared", "b2 white-collar", "b2 whitecollar", "b2 whitecollared", "bl2 white collared", "bl2 white collar", "bl2 white-collared", "bl2 white-collar", "bl2whitecollar", "bl2whitecollared", "blue2 white collared", " blue2 white collar", " blue2 white-collared", " blue2 white-collar", " blue2whitecollar", " blue2whitecollared", "white collared b2", "white collar b2", "white-collared b2", "white-collar b2", "whitecollar b2", "whitecollared b2", "white collared bl2", "white collar bl2", "white-collared bl2", "white-collar bl2", "whitecollar bl2", "whitecollared bl2", "white collared blue2", "white collar blue2", "white-collared blue2", "white-collar blue2", "whitecollar blue2", "whitecollared blue2"], res: () => [{id:"blue2", val:2}] },
     { keys: ["aqua blue"], sp: "white_eye_ring", res: () => [{id:"aqua_blue1", val:2}] },
     { keys: ["sapphire blue", "orange fronted"], res: () => [{id:"sapphire_blue1", val:2}] },
@@ -2262,9 +2357,38 @@ const customDictionary = [
     { keys: ["aquasapphire mauve", "mauve aquasapphire"], sp: "white_eye_ring", res: () => [{id:"dark_factor", val:2}, {id:"aqua_sapphire", val:2}] },
     { keys: ["aquasapphire cobalt", "cobalt aquasapphire"], sp: "white_eye_ring", res: () => [{id:"dark_factor", val:1}, {id:"aqua_sapphire", val:2}] },
     // --- Translate Turquoise to Parblue for White Eye-Rings ---
-    { keys: ["turquoise"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
+    { keys: ["turquoise", "turquoise blue"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
     { keys: ["turquoise mauve", "mauve turquoise"], sp: "white_eye_ring", res: () => [{id:"dark_factor", val:2}, {id:"blue1_blue2", val:2}] },
     { keys: ["turquoise cobalt", "cobalt turquoise"], sp: "white_eye_ring", res: () => [{id:"dark_factor", val:1}, {id:"blue1_blue2", val:2}] },
+    // --- New Common Names & Nicknames ---
+    { keys: ["dun"], res: () => [{id:"dun_fallow", val:2}] },
+    { keys: ["bronz", "bronze"], res: () => [{id:"bronze_fallow", val:2}] },
+    { keys: ["opa", "biola"], res: () => [{id:"opaline", val:2}] },
+    { keys: ["medium green", "medium"], res: () => [{id:"dark_factor", val:1}] },
+    { keys: ["laurel", "laurel green"], res: () => [{id:"dark_factor", val:2}] },
+    
+    // Roseicollis Head & Face Modifiers
+    { keys: ["white face", "whiteface"], sp: "roseicollis", res: () => [{id:"rose_blue", val:2}] },
+    { keys: ["white head", "whitehead", "white headed", "whiteheaded"], sp: "roseicollis", res: () => [{id:"opaline", val:2}, {id:"rose_blue", val:2}] },
+    { keys: ["red head", "redhead", "red headed", "redheaded"], sp: "roseicollis", res: () => [{id:"opaline", val:2}] },
+    { keys: ["orange head", "orangehead", "orange headed", "orangeheaded"], sp: "roseicollis", res: () => [{id:"orange_face", val:2}, {id:"opaline", val:2}] },
+    
+    // Sea Green (Species Split)
+    { keys: ["sea green", "seagreen"], sp: "roseicollis", res: () => [{id:"aqua", val:2}] },
+    { keys: ["sea green", "seagreen"], sp: "white_eye_ring", res: () => [{id:"blue1_blue2", val:2}] },
+    
+    // Lime (Applies Pallid, Suggests Pastel)
+    { keys: ["lime"], sp: "roseicollis", res: () => [{id:"pallid", val:2}], suggest: () => [{id:"pastel", val:2}] },
+    
+    // Lavender (Species Split for correct blue allele)
+    { keys: ["lavender"], sp: "white_eye_ring", res: () => [{id:"pallid", val:2}, {id:"violet", val:2}, {id:"dark_factor", val:1}, {id:"blue1", val:2}] },
+    { keys: ["lavender"], sp: "roseicollis", res: () => [{id:"pallid", val:2}, {id:"violet", val:2}, {id:"dark_factor", val:1}, {id:"rose_blue", val:2}] },
+    
+    // Dutch Blue
+    { keys: ["dutch blue", "dutchblue"], sp: "roseicollis", res: () => [{id:"turquoise", val:2}] },
+    
+    // Pied Modifiers
+    { keys: ["clear pied", "clearpied", "heavy pied", "heavypied"], res: () => [{id:"dom_pied", val:2}] },
 ];
 
 function buildDynamicDictionary(species) {
@@ -2349,7 +2473,7 @@ function parseTraitsStr(str, species, isSplit) {
                         let traitObj = { id: t.id, val: finalVal, isSplit: isSplit, locus: dbMut.locus, type: dbMut.type };
                         let needsLinkage = isSplit || finalVal === 1; 
                         
-                        if (dbMut.type.includes("SL") && needsLinkage) traitObj.z = explicitZ || "z1";
+                        if (dbMut.type.includes("SL") && needsLinkage) traitObj.z = explicitZ;
                         if (dbMut.id === "dark_factor" && needsLinkage) traitObj.t = explicitT || "T1";
                         
                         targetArray.push(traitObj);
@@ -2576,8 +2700,23 @@ function processSearchQuery(query, species, sex) {
                     
                     if (compound) {
                         let compoundName = compound.result_label || compound.name;
-                        let fixFn = `applySmartFix('${sex}', '${compound.id}')`;
-                        splitWarnings.push(`⚠️ <strong>Notice:</strong> '${m2.name}' (split) was ignored. A bird cannot carry two hidden alleles on the same gene (${t.locus}-locus). Carrying both '${m1.name}' and '${m2.name}' would automatically make this bird a visual ${compoundName} compound.<br><br>💡 <strong>Did you mean to create a visual compound?</strong> <a href="javascript:void(0)" onclick="${fixFn}" class="smart-fix-btn" style="color: #007bff; text-decoration: underline; cursor: pointer;">Click here to apply: <strong>[${compoundName}]</strong></a>`);
+                        
+                        let baseVisNames = parsedVis.foundTraits.map(x => {
+                            let m = mutationDB.find(dbm => dbm.id === x.id);
+                            return m ? m.name : x.id;
+                        }).join(" ");
+                        let visPrefix = baseVisNames || "Green";
+                        
+                        let a0 = (m1.result_label || m1.name).toLowerCase();
+                        let a1 = (m2.result_label || m2.name).toLowerCase();
+                        
+                        let opts = [];
+                        opts.push(`1. <a href="javascript:void(0)" onclick="applyCompoundSplitFix('${sex}', '${baseVisNames.replace(/'/g, "\\'")}', '${m1.id}', '${m2.id}')" style="color:#007bff;text-decoration:underline;">${visPrefix} / ${a0} // ${a1}</a>`);
+                        opts.push(`2. <a href="javascript:void(0)" onclick="applyCompoundSplitFix('${sex}', '${baseVisNames.replace(/'/g, "\\'")}', '${m2.id}', '${m1.id}')" style="color:#007bff;text-decoration:underline;">${visPrefix} / ${a1} // ${a0}</a>`);
+
+                        let optionsHtml = `<br><br>If you are unsure of the bird's exact genetics, try one of these valid options instead (click to apply):<br>${opts.join("<br>")}`;
+
+                        splitWarnings.push(`⚠️ <strong>Notice:</strong> '${m2.name}' (split) was ignored. A bird cannot carry two hidden alleles on the same gene (${t.locus}-locus). Carrying both '${m1.name}' and '${m2.name}' would automatically make this bird a visual ${compoundName} compound.${optionsHtml}`);
                     } else {
                         splitWarnings.push(`⚠️ <strong>Notice:</strong> '${m2.name}' (split) was ignored. A bird cannot carry two hidden alleles on the same gene (${t.locus}-locus).`);
                     }
@@ -3156,8 +3295,8 @@ function initMobileUnifiedSearch() {
                 damCategories.parentNode.insertBefore(damSearch, damCategories);
             }
             // Restore default text
-            if (sireLabel) sireLabel.innerHTML = "Quick Add Mutation";
-            if (damLabel) damLabel.innerHTML = "Quick Add Mutation";
+            if (sireLabel) sireLabel.innerHTML = "SmartMuta Search";
+            if (damLabel) damLabel.innerHTML = "SmartMuta Search";
         }
     }
 
